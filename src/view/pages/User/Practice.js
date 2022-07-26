@@ -211,7 +211,9 @@ const ShowSelectionContainer = ({ data }) => {
                   }}
                   name={topic}
                 />
-                <Typography>{topic.title}</Typography>
+                <Typography>
+                  {topic.title} ({topic?.subTopics?.length})
+                </Typography>
                 <div style={{ flex: 1 }} />
 
                 {currentTopic !== topic.id ? (
