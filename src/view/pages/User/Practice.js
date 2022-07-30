@@ -441,10 +441,14 @@ const Practice = () => {
         >
           Select Questions From Functional Knowledge and Topic
         </Typography>
+
+
+
+        
         {/* ************************************* */}
-        {questionSelectionData ? (
+        {/* {questionSelectionData ? (
           <ShowSelectionContainer data={questionSelectionData} />
-        ) : null}
+        ) : null} */}
         <Box
           sx={{
             display: "flex",
