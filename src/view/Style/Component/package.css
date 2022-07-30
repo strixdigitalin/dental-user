@@ -1,0 +1,26 @@
+.package{
+    width: 20%;
+    height: 200px;
+    border: 1px solid #f13a5a;
+    background-color: #f13a5a;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    min-width: 250px;
+    margin: 20px 0px;
+}
+
+.package-outer{
+    display: flex;
+    justify-content: center;
+    gap: 5%;
+    flex-wrap: wrap;
+
+}
+.selected{
+    background-color: white;
+
+}

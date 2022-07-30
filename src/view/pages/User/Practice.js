@@ -31,6 +31,7 @@ import { makeStyles } from "@material-ui/core";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 import { NavLink } from "react-router-dom";
 import api from "../../../infrastructure/utils/axios";
+import PackageBox from "../../component/PackageBox";
 // import { UserContext } from "../../../UserContext";
 
 const useStyles = makeStyles((theme) => ({
@@ -254,12 +255,44 @@ const ShowSelectionContainer = ({ data }) => {
 };
 
 const Practice = () => {
+  const packageData = [
+    {
+      name: "Package 1",
+      totalQuestions: 40,
+    },
+    {
+      name: "Package 1",
+      totalQuestions: 40,
+    },
+    {
+      name: "Package 1",
+      totalQuestions: 40,
+    },
+    {
+      name: "Package 1",
+      totalQuestions: 40,
+    },
+    {
+      name: "Package 1",
+      totalQuestions: 40,
+    },
+    {
+      name: "Package 1",
+      totalQuestions: 40,
+    },
+    {
+      name: "Package 1",
+      totalQuestions: 40,
+    },
+  ];
+
   const [testExists, setTestExists] = useState(async () => {
     const res = await api.get("question/testExists");
     const data = await res.data;
     return data.exists;
   });
   const [checked, setChecked] = useState([0]);
+  const [selectedPackage, setSelectedPackage] = useState(null);
   const [mode, setMode] = useState("learning");
   const [total, setTotal] = useState(null);
   const [filters, setFilters] = useState({
@@ -442,13 +475,29 @@ const Practice = () => {
           Select Questions From Functional Knowledge and Topic
         </Typography>
 
+        <div></div>
 
-
-        
         {/* ************************************* */}
         {/* {questionSelectionData ? (
           <ShowSelectionContainer data={questionSelectionData} />
         ) : null} */}
+
+        {/* ---- show packages */}
+        <div className="package-outer">
+          {packageData.map((item, index) => {
+            return (
+              <PackageBox
+                index={index}
+                item={item}
+                setSelectedPackage={setSelectedPackage}
+                selectedPackage={selectedPackage}
+              />
+            );
+          })}
+        </div>
+
+        {/* --- */}
+
         <Box
           sx={{
             display: "flex",
@@ -486,20 +535,24 @@ const Practice = () => {
             Please enter valid number 10 to 100
           </Typography>
         </Box>
-        {total > 0 && total < 100 && selectedSubTopics.length > 0 ? (
-          <NavLink to="/user/test">
-            <Button
-              onClick={() => {
-                dispatch(setSubmittedTestResultEmpty());
-                dispatch(setQuestionFilter({ filters, mode, total }));
-                dispatch(fetchQuestions({ page: 1 }));
-              }}
-              sx={{ color: "white", "&:hover": { backgroundColor: "#f23a5e" } }}
-            >
-              Start
-            </Button>
-          </NavLink>
+        {/* {total > 0 && total < 100 && selectedSubTopics.length > 0 ? ( */}
+        {total > 0 && total < 100 ? (
+          // <NavLink to="/user/test">
+          <Button
+            onClick={() => {
+              if (selectedPackage == null) {
+                alert("Select PAckage");
+              }
+              // dispatch(setSubmittedTestResultEmpty());
+              // dispatch(setQuestionFilter({ filters, mode, total }));
+              // dispatch(fetchQuestions({ page: 1 }));
+            }}
+            sx={{ color: "white", "&:hover": { backgroundColor: "#f23a5e" } }}
+          >
+            Start
+          </Button>
         ) : (
+          // </NavLink>
           <Button disabled>Start</Button>
         )}
       </Container>
