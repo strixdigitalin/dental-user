@@ -9,6 +9,7 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    color: white,;
     min-width: 250px;
     margin: 20px 0px;
 }
@@ -20,7 +21,16 @@
     flex-wrap: wrap;
 
 }
-.selected{
+.selected {
     background-color: white;
+    color: #f13a5a !important;
 
+}
+.selected > *{
+    background-color: white;
+    color: #f13a5a !important;
+
+}
+.package > *{
+    color: white;
 }

@@ -12,6 +12,8 @@ import UserNavigation from "../../component/UserNavigation";
 import UserFooter from "../../component/UserFooter";
 import api from "../../../infrastructure/utils/axios";
 import { NavLink } from "react-router-dom";
+import axios from "axios";
+import { BACKEND_URL } from "../../Constant";
 
 // const useStyles = makeStyles({
 //   thead: {
@@ -65,8 +67,13 @@ const rows = [
 
 export default function TestPerfomance() {
   const [tests, setTests] = useState([]);
-  useEffect(() => {
-    api.get("testResult/all").then((res) => setTests([...res.data.data]));
+  useEffect(async () => {
+    // api.get("testResult/all").then((res) => setTests([...res.data.data]));
+    const { data } = await axios.get(
+      `${BACKEND_URL}/api/v1/package-test-result/all`
+    );
+    console.log(data.data);
+    setTests(data.data);
   });
   return (
     <>
@@ -101,12 +108,12 @@ export default function TestPerfomance() {
                   Unanswered
                 </StyledTableCell>
                 <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
-                  # of Que
+                  No of Que
                 </StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {tests.map((test) => (
+              {tests?.map((test) => (
                 <StyledTableRow key={test.ViewScore}>
                   <StyledTableCell component="th" scope="row">
                     <NavLink

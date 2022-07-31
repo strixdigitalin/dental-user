@@ -2,6 +2,13 @@ import axios from "axios";
 import { refreshToken } from "../../application/reducers/authSlice";
 import { actions, ALERT_TYPES } from "../../application/reducers/uiSlice";
 import store from "../../application/store";
+export const headers = () => {
+  const auth = store.getState().auth;
+
+  return {
+    Authorization: `Bearer ${auth.token.accessToken}`,
+  };
+};
 
 const api = axios.create({
   // baseURL: "https://dental-world-api.herokuapp.com/api/v1",
@@ -11,6 +18,7 @@ const api = axios.create({
 
 api.interceptors.request.use((request) => {
   const auth = store.getState().auth;
+
   if (auth.isAuth)
     request.headers.Authorization = `Bearer ${auth.token.accessToken}`;
   return request;

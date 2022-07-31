@@ -14,6 +14,8 @@ import { useHistory } from "react-router-dom";
 import api from "../../../infrastructure/utils/axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuestionDetail } from "../../../application/reducers/explanationSlice";
+import axios from "axios";
+import { BACKEND_URL } from "../../Constant";
 
 const styles = {
   container: {
@@ -87,25 +89,35 @@ export default function Result() {
   const dispatch = useDispatch();
   const [overallData, setOverallData] = useState({});
   const [resultData, setResultData] = useState({});
+  const [packageResult, setpackageResult] = useState({});
   const [results, setResults] = useState([]);
   const { id } = useParams();
-  useEffect(() => {
-    api
-      .get(`testResult/${id}`)
-      .then((res) => {
-        console.log(res.data.data, "<<<<this is all data");
-        setResultData(res.data.data);
-        return res.data.data;
-      })
-      .then((data) => {
-        setOverallData({ score: data.totalScore, mode: data.mode });
-        return data.questions_details;
-      })
-      .then((results) => {
-        // console.log(results, "<<<<results");
-        setResults([...results]);
-      });
+  // useEffect(() => {
+  //   api
+  //     .get(`testResult/${id}`)
+  //     .then((res) => {
+  //       console.log(res.data.data, "<<<<this is all data");
+  //       setResultData(res.data.data);
+  //       return res.data.data;
+  //     })
+  //     .then((data) => {
+  //       setOverallData({ score: data.totalScore, mode: data.mode });
+  //       return data.questions_details;
+  //     })
+  //     .then((results) => {
+  //       // console.log(results, "<<<<results");
+  //       setResults([...results]);
+  //     });
+  // }, []);
+
+  useEffect(async () => {
+    const { data } = await axios.get(
+      `${BACKEND_URL}/api/v1/package-test-result/${id}`
+    );
+    console.log(data.data);
+    setpackageResult(data.data);
   }, []);
+
   console.log("results :: ", results);
   return (
     <div>
@@ -123,13 +135,15 @@ export default function Result() {
           <div>
             <Typography>Your Score</Typography>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <ProgressBar progress={overallData.score} />
-              <Typography>{`${Math.ceil(overallData["score"])} %`}</Typography>
+              <ProgressBar progress={packageResult.totalScore} />
+              <Typography>{`${Math.ceil(
+                packageResult["totalScore"]
+              )} %`}</Typography>
             </div>
           </div>
           <div>
             <Typography fontWeight="bold">Test Setting</Typography>
-            <Typography>Mode: {overallData.mode}</Typography>
+            <Typography>Mode: {packageResult.mode}</Typography>
           </div>
         </div>
 
@@ -140,15 +154,18 @@ export default function Result() {
                 SL No.
               </StyledTableCell>
               <StyledTableCell sx={{ fontSize: "20px" }} align="left">
-                Subject
+                Question
               </StyledTableCell>
               <StyledTableCell sx={{ fontSize: "20px" }} align="left">
-                Functional Knowledge
+                {/* Question */}
+                Answer
               </StyledTableCell>
               <StyledTableCell sx={{ fontSize: "20px" }} align="left">
-                Topics
+                {/* Question */}
+                Marked
               </StyledTableCell>
-              {overallData.mode === "TEST" ? (
+
+              {packageResult.mode === "TEST" ? (
                 <StyledTableCell sx={{ fontSize: "20px" }} align="left">
                   Time Spent
                 </StyledTableCell>
@@ -156,7 +173,7 @@ export default function Result() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {results.map((result, idx) => (
+            {packageResult?.questions_details?.map((result, idx) => (
               <StyledTableRow key={result?.name}>
                 <StyledTableCell
                   sx={{ fontSize: "16px" }}
@@ -166,13 +183,17 @@ export default function Result() {
                   {idx + 1}
                 </StyledTableCell>
                 <StyledTableCell sx={{ fontSize: "16px" }} align="left">
-                  {result?.question?.subject?.title}
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: result?.question?.questionTitle,
+                    }}
+                  />
                 </StyledTableCell>
                 <StyledTableCell sx={{ fontSize: "16px" }} align="left">
-                  {result?.question?.topic?.title}
+                  {result?.isCorrect == true ? "Correct" : "Incorrect"}
                 </StyledTableCell>
                 <StyledTableCell sx={{ fontSize: "16px" }} align="left">
-                  {result?.question?.subtopic?.title}
+                  {result?.isMarked == true ? "Yes" : "No"}
                   {!result?.timeSpend ? (
                     <IconButton
                       onClick={() => {
@@ -186,7 +207,7 @@ export default function Result() {
                 </StyledTableCell>
                 {result?.timeSpend ? (
                   <StyledTableCell sx={{ fontSize: "16px" }} align="center">
-                    {result?.timeSpend}
+                    {result?.timeSpend}s
                     <IconButton
                       onClick={() => {
                         dispatch(setQuestionDetail(result?.question));

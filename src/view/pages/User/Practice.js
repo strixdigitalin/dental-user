@@ -12,6 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import UserNavigation from "../../component/UserNavigation";
+
 import UserFooter from "../../component/UserFooter";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -29,9 +30,16 @@ import {
 } from "../../../application/reducers/testSlice";
 import { makeStyles } from "@material-ui/core";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import api from "../../../infrastructure/utils/axios";
 import PackageBox from "../../component/PackageBox";
+import axios from "axios";
+import {
+  BACKEND_URL,
+  CURRENT_QUESTION,
+  CURRENT_SELECTED_PACKAGE,
+  TOTAL_SELECTED_QUESTION,
+} from "../../Constant";
 // import { UserContext } from "../../../UserContext";
 
 const useStyles = makeStyles((theme) => ({
@@ -291,8 +299,10 @@ const Practice = () => {
     const data = await res.data;
     return data.exists;
   });
+
   const [checked, setChecked] = useState([0]);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const history = useHistory();
   const [mode, setMode] = useState("learning");
   const [total, setTotal] = useState(null);
   const [filters, setFilters] = useState({
@@ -348,18 +358,25 @@ const Practice = () => {
     setChecked(newChecked);
   };
 
-  const [questionSelectionData, setQuestionSelectionData] = useState(null);
-  useEffect(() => {
-    dispatch(getQuestionMetaData())
-      .unwrap()
-      .then((res) => {
-        setQuestionSelectionData(res.data);
-      })
-      .catch((err) => console.log(err));
+  const [questionSelectionData, setQuestionSelectionData] = useState([]);
+  useEffect(async () => {
+    const { data } = await axios.get(`${BACKEND_URL}/api/v1/package`);
+    setQuestionSelectionData(data.data);
+    // consoel.log(data)
   }, [dispatch]);
 
   const minMaxValue = (e) => {
     setTotal(e.target.value);
+  };
+  const handleSubmit = () => {
+    localStorage.setItem(TOTAL_SELECTED_QUESTION, total);
+    localStorage.setItem(CURRENT_QUESTION, 1);
+    const { id, questionCount } = questionSelectionData[selectedPackage];
+    localStorage.setItem(CURRENT_SELECTED_PACKAGE, id);
+    if (questionCount >= total) history.push("/user/test");
+    else {
+      alert("You can select maximum:" + questionCount);
+    }
   };
 
   console.log("questionSelectionData :: ", questionSelectionData);
@@ -484,7 +501,7 @@ const Practice = () => {
 
         {/* ---- show packages */}
         <div className="package-outer">
-          {packageData.map((item, index) => {
+          {questionSelectionData.map((item, index) => {
             return (
               <PackageBox
                 index={index}
@@ -543,6 +560,7 @@ const Practice = () => {
               if (selectedPackage == null) {
                 alert("Select PAckage");
               }
+              handleSubmit();
               // dispatch(setSubmittedTestResultEmpty());
               // dispatch(setQuestionFilter({ filters, mode, total }));
               // dispatch(fetchQuestions({ page: 1 }));

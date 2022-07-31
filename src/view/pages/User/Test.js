@@ -15,6 +15,14 @@ import {
   actions as uiActions,
   ALERT_TYPES,
 } from "../../../application/reducers/uiSlice";
+import {
+  BACKEND_URL,
+  CURRENT_QUESTION,
+  CURRENT_SELECTED_PACKAGE,
+  TOTAL_SELECTED_QUESTION,
+} from "../../Constant";
+import axios from "axios";
+import { headers } from "../../../infrastructure/utils/axios";
 
 const styles = {
   container: {
@@ -111,7 +119,6 @@ export default function LearningMode() {
   const [selected, setSelected] = useState(null);
   const dispatch = useDispatch();
   const stateValue = useSelector((state) => state);
-  console.log(stateValue, "<<<<state");
   const totalQuestion = useSelector((state) => state.test.totalQuestion);
   // console.log(state, "<<<<");
   const [time, setTime] = useState();
@@ -127,8 +134,28 @@ export default function LearningMode() {
   //     : false
   // );
 
-  const [marked, setMarked] = useState(false);
+  // ------------------------------------------------------------------------------------------------------------PACKAGE VARIABLES-------------
 
+  const currQuestion = localStorage.getItem(CURRENT_QUESTION);
+  const totalSelecteQuestion = localStorage.getItem(TOTAL_SELECTED_QUESTION);
+  const selectedPackage = localStorage.getItem(CURRENT_SELECTED_PACKAGE);
+
+  const [runTime, setRunTime] = useState(0);
+  const [formData, setFormData] = useState({
+    timeSpent: 0,
+    package: selectedPackage,
+    mode: "TEST",
+    questions_details: [],
+    totalQuestion: 0,
+    totalIncorrect: 0,
+    totalCorrect: 0,
+    totalUnanswered: 0,
+    totalMarked: 0,
+  });
+
+  const [marked, setMarked] = useState(false);
+  const [countQuestion, setcountQuestion] = useState(+currQuestion);
+  const [onScreenQuestion, setonScreenQuestion] = useState({});
   const nextHandler = () => {
     setSelected(null);
     console.log(question, "<<<<question");
@@ -149,30 +176,124 @@ export default function LearningMode() {
     setSelectedOption(null);
   };
 
-  const submitHandler = async () => {
-    dispatch(submitAnswers());
-  };
+  useEffect(async () => {
+    if (totalSelecteQuestion >= countQuestion) {
+      const { data } = await axios.post(
+        `${BACKEND_URL}/api/v1/package-question/user`,
+        {},
+        {
+          params: {
+            limit: totalSelecteQuestion,
+            page: countQuestion,
+            package: selectedPackage,
+          },
+        }
+      );
+      setonScreenQuestion(data.data[0]);
+      setSelectedOption(null);
+      setSelected(null);
+    } else {
+      alert("submit");
+    }
+  }, [countQuestion]);
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     // setFormData({...formData,})
+  //     alert(runTime);
+
+  //     setRunTime(+runTime + 1);
+  //   }, 1000);
+
+  //   clearInterval(interval);
+  // }, []);
   useEffect(() => {
-    (async () => {
-      // alert(`quest ${questionCount}`);
-      let response = await dispatch(fetchQuestions({ page: questionCount }));
-      console.log(response, "response");
-      if (
-        totalQuestion !== null &&
-        totalQuestion === 0 &&
-        response?.payload?.data?.count === 0
-      ) {
-        history.goBack();
-        dispatch(
-          actions.showAlert({
-            type: ALERT_TYPES.ERROR,
-            message: "No questions available",
-          })
-        );
+    console.log(formData, "<<<this is formData");
+  }, [formData]);
+
+  const handleNextQuestion = () => {
+    console.log(selectedOption, "<<<<");
+    const pushTheAns = {
+      question: onScreenQuestion.id,
+      isUnused: selectedOption != null ? false : true,
+      isMarked: selectedOption != null ? true : false,
+      isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
+      isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
+      timeSpend: time,
+    };
+
+    // ----------
+    const totalQuestion = +formData.totalQuestion + 1;
+    const timeSpent = +formData.timeSpent + +time;
+    const totalIncorrect =
+      selectedOption != null
+        ? selectedOption.isCorrect
+          ? +formData.totalIncorrect
+          : formData.totalIncorrect + 1
+        : formData.totalIncorrect;
+    const totalCorrect =
+      selectedOption != null
+        ? selectedOption.isCorrect
+          ? +formData.totalCorrect + 1
+          : formData.totalCorrect
+        : formData.totalCorrect;
+    const totalUnanswered =
+      selectedOption != null
+        ? +formData.totalUnanswered
+        : +formData.totalUnanswered + +1;
+    const totalMarked =
+      selectedOption != null
+        ? +formData.totalMarked + 1
+        : +formData.totalMarked;
+    // ----------------------------------------
+
+    setFormData({
+      ...formData,
+      questions_details: [...formData.questions_details, pushTheAns],
+      totalQuestion,
+      totalIncorrect,
+      totalCorrect,
+      totalUnanswered,
+      totalMarked,
+      timeSpent,
+    });
+
+    // setcountQuestion(countQuestion + 1);
+  };
+  const submitHandler = async () => {
+    // dispatch(submitAnswers());
+    handleNextQuestion();
+    const { data } = await axios.post(
+      `${BACKEND_URL}/api/v1/package-test-result/add`,
+      formData,
+      {
+        headers: headers(),
       }
-    })();
-  }, [questionCount, totalQuestion]);
+    );
+    console.log(data, "<<<< after submit test");
+  };
+  // console.log(onScreenQuestion, "<<<<<get questions");
+
+  // useEffect(() => {
+  //   (async () => {
+  //     // alert(`quest ${questionCount}`);
+  //     let response = await dispatch(fetchQuestions({ page: questionCount }));
+  //     console.log(response, "response");
+  //     if (
+  //       totalQuestion !== null &&
+  //       totalQuestion === 0 &&
+  //       response?.payload?.data?.count === 0
+  //     ) {
+  //       history.goBack();
+  //       dispatch(
+  //         actions.showAlert({
+  //           type: ALERT_TYPES.ERROR,
+  //           message: "No questions available",
+  //         })
+  //       );
+  //     }
+  //   })();
+  // }, [questionCount, totalQuestion]);
 
   useEffect(() => {
     let _time = 0;
@@ -192,20 +313,20 @@ export default function LearningMode() {
         <Box sx={styles.subContainer1}>
           <Typography
             sx={styles.questionTitle}
-          >{`Question ${questionCount}.`}</Typography>
+          >{`Question ${countQuestion}.`}</Typography>
           <Typography sx={styles.question}>
-            {question ? (
+            {true ? (
               <div
                 dangerouslySetInnerHTML={{
-                  __html: question["questionTitle"],
+                  __html: onScreenQuestion?.questionTitle,
                 }}
               />
             ) : null}
           </Typography>
         </Box>
         <Box sx={styles.subContainer2}>
-          {question
-            ? question["options"].map((option, index) => (
+          {onScreenQuestion != {}
+            ? onScreenQuestion?.options?.map((option, index) => (
                 <Button
                   key={index}
                   onClick={() => {
@@ -238,12 +359,20 @@ export default function LearningMode() {
               </ModifiedButton>
             )}
 
-            {isReadyForSubmit ? (
+            {/* {isReadyForSubmit ? ( */}
+            {totalSelecteQuestion == countQuestion ? (
               <ModifiedButton variant="contained" onClick={submitHandler}>
                 Submit
               </ModifiedButton>
             ) : (
-              <ModifiedButton variant="contained" onClick={nextHandler}>
+              <ModifiedButton
+                variant="contained"
+                //  onClick={nextHandler}
+                onClick={() => {
+                  handleNextQuestion();
+                  setcountQuestion(countQuestion + 1);
+                }}
+              >
                 Save &amp; Next
               </ModifiedButton>
             )}

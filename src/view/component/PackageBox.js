@@ -6,8 +6,8 @@ function PackageBox({ item, selectedPackage, setSelectedPackage, index }) {
       className={`package ${index == selectedPackage ? "selected" : ""}`}
       onClick={() => setSelectedPackage(index)}
     >
-      <div>{item.name}</div>
-      <div>Total Questions {item.totalQuestions}</div>
+      <div className="packageText">{item.title}</div>
+      <div className="packageText">Total Questions {item.questionCount}</div>
     </div>
   );
 }
