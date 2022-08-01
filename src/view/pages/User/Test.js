@@ -128,6 +128,7 @@ export default function LearningMode() {
   const question = useSelector((state) => state.test.testQuestion);
   const isReadyForSubmit = useSelector((state) => state.test.isReadyForSubmit);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [lastQues, setLastQues] = useState(false);
   // const isMarked = useSelector((state) =>
   //   state.test.testResult.questions_details[questionCount - 1]
   //     ? state.test.testResult.questions_details[questionCount - 1]["isMarked"]
@@ -177,7 +178,10 @@ export default function LearningMode() {
   };
 
   useEffect(async () => {
+    disableBackButton();
+    setTimeout("disableBackButton()", 0);
     if (totalSelecteQuestion >= countQuestion) {
+      localStorage.setItem(CURRENT_QUESTION, countQuestion);
       const { data } = await axios.post(
         `${BACKEND_URL}/api/v1/package-question/user`,
         {},
@@ -197,6 +201,10 @@ export default function LearningMode() {
     }
   }, [countQuestion]);
 
+  function disableBackButton() {
+    window.history.forward();
+  }
+
   // useEffect(() => {
   //   const interval = setInterval(() => {
   //     // setFormData({...formData,})
@@ -207,11 +215,25 @@ export default function LearningMode() {
 
   //   clearInterval(interval);
   // }, []);
-  useEffect(() => {
-    console.log(formData, "<<<this is formData");
-  }, [formData]);
+  useEffect(async () => {
+    // console.log(formData, "<<<this is formData");
+    if (lastQues == true) {
+      const { data } = await axios.post(
+        `${BACKEND_URL}/api/v1/package-test-result/add`,
+        formData,
+        {
+          headers: headers(),
+        }
+      );
+      console.log(data, "<<<< after submit test");
+      if (data.statusCode == 200) {
+        const id = data.data._id;
+        history.push(`/user/result/${id}`);
+      }
+    }
+  }, [lastQues]);
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = (last = false) => {
     console.log(selectedOption, "<<<<");
     const pushTheAns = {
       question: onScreenQuestion.id,
@@ -257,20 +279,16 @@ export default function LearningMode() {
       totalMarked,
       timeSpent,
     });
-
+    if (last == true) {
+      setLastQues(true);
+    }
     // setcountQuestion(countQuestion + 1);
   };
+
   const submitHandler = async () => {
     // dispatch(submitAnswers());
-    handleNextQuestion();
-    const { data } = await axios.post(
-      `${BACKEND_URL}/api/v1/package-test-result/add`,
-      formData,
-      {
-        headers: headers(),
-      }
-    );
-    console.log(data, "<<<< after submit test");
+    handleNextQuestion(true);
+    // setLastQues()
   };
   // console.log(onScreenQuestion, "<<<<<get questions");
 

@@ -6,7 +6,7 @@ export const headers = () => {
   const auth = store.getState().auth;
 
   return {
-    Authorization: `Bearer ${auth.token.accessToken}`,
+    authorization: `Bearer ${auth.token.accessToken}`,
   };
 };
 
