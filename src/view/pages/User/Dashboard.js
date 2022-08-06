@@ -134,7 +134,7 @@ const QuestionCard = (props) => {
   return (
     <>
       <Box display="flex" justifyContent="space-evenly" flexWrap="wrap">
-        {QuestionCardItem.map((item, i) => (
+        {/* {QuestionCardItem.map((item, i) => (
           <div key={i}>
             <Box className={classes.QuestionCard}>
               <div>
@@ -144,27 +144,14 @@ const QuestionCard = (props) => {
                 <Typography style={{ color: "#F23A5E", fontSize: "38px" }}>
                   <b>{item.count}</b>
                 </Typography>
-                {/* <Typography style={{ color: "#757575", fontSize: "18px" }}>
-                  {item.reports}
-                </Typography> */}
+          
               </div>
               <div>
-                {/* <CircularProgress
-                  variant="determinate"
-                  value={75}
-                  thickness={5}
-                  sx={{
-                    width: "100px",
-                    color: "#F23A5E",
-                    "&.Mui-checked": {
-                      color: "#F23A5E",
-                    },
-                  }}
-                /> */}
+             
               </div>
             </Box>
           </div>
-        ))}
+        ))} */}
       </Box>
     </>
   );

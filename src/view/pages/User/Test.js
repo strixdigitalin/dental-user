@@ -19,6 +19,7 @@ import {
   BACKEND_URL,
   CURRENT_QUESTION,
   CURRENT_SELECTED_PACKAGE,
+  GENERATED_TEST_ID,
   TOTAL_SELECTED_QUESTION,
 } from "../../Constant";
 import axios from "axios";
@@ -122,6 +123,9 @@ export default function LearningMode() {
   const totalQuestion = useSelector((state) => state.test.totalQuestion);
   // console.log(state, "<<<<");
   const [time, setTime] = useState();
+  const [testTime, setTestTime] = useState(0);
+  const [endTestTime, setEndTestTime] = useState(0);
+  const [startTimer, setstartTimer] = useState(false);
   const mode = useSelector((state) => state.test.testResult.mode);
   const displayResult = useSelector((state) => state.test.submittedTest);
   const questionCount = useSelector((state) => state.test.questionVisitCount);
@@ -193,6 +197,7 @@ export default function LearningMode() {
           },
         }
       );
+      setstartTimer(true);
       setonScreenQuestion(data.data[0]);
       setSelectedOption(null);
       setSelected(null);
@@ -216,24 +221,61 @@ export default function LearningMode() {
   //   clearInterval(interval);
   // }, []);
   useEffect(async () => {
+    let interval = null;
+
+    if (startTimer == true) {
+      interval = setInterval(() => {
+        // setTestTime((time) => time + 1);
+        const currTimeStamp = Date.now();
+
+        setTestTime(endTestTime - currTimeStamp);
+        return endTestTime - currTimeStamp;
+      }, 1000);
+    } else {
+      const { data } = await axios.get(
+        `${BACKEND_URL}/api/v1/package-test-result/${localStorage.getItem(
+          GENERATED_TEST_ID
+        )}`
+      );
+      setstartTimer(true);
+      setEndTestTime(data.data.endTime);
+      // setstartTimer()
+    }
+
+    // if (isActive && isPaused === false) {
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [endTestTime]);
+
+  useEffect(async () => {
     // console.log(formData, "<<<this is formData");
     if (lastQues == true) {
-      const { data } = await axios.post(
-        `${BACKEND_URL}/api/v1/package-test-result/add`,
-        formData,
-        {
-          headers: headers(),
-        }
-      );
-      console.log(data, "<<<< after submit test");
-      if (data.statusCode == 200) {
-        const id = data.data._id;
-        history.push(`/user/result/${id}`);
-      }
+      // const { data } = await axios.post(
+      //   `${BACKEND_URL}/api/v1/package-test-result/add`,
+      //   formData,
+      //   {
+      //     headers: headers(),
+      //   }
+      // );
+      // console.log(data, "<<<< after submit test");
+      // if (data.statusCode == 200) {
+      //   const id = data.data._id;
+      //   history.push(`/user/result/${id}`);
+      // }
     }
   }, [lastQues]);
 
-  const handleNextQuestion = (last = false) => {
+  const completeTheTest = async () => {
+    const { data } = await axios.post(
+      `${BACKEND_URL}/api/v1/package-test-result/test-completed/${localStorage.getItem(
+        GENERATED_TEST_ID
+      )}`
+    );
+  };
+
+  const handleNextQuestion = async (last = false) => {
     console.log(selectedOption, "<<<<");
     const pushTheAns = {
       question: onScreenQuestion.id,
@@ -268,20 +310,46 @@ export default function LearningMode() {
         ? +formData.totalMarked + 1
         : +formData.totalMarked;
     // ----------------------------------------
+    const dataToSend = {
+      testId: localStorage.getItem(GENERATED_TEST_ID),
+      isTestCompleted: last ? true : false,
+      question_details: [pushTheAns],
+      totalIncorrect:
+        selectedOption != null ? (selectedOption.isCorrect ? 0 : 1) : 0,
+      totalCorrect:
+        selectedOption != null ? (selectedOption.isCorrect ? 1 : 0) : 0,
+      totalUnanswered: selectedOption != null ? 0 : 1,
+      totalMarked: selectedOption != null ? 1 : 0,
+      totalTimeSpend: 80,
+    };
 
-    setFormData({
-      ...formData,
-      questions_details: [...formData.questions_details, pushTheAns],
-      totalQuestion,
-      totalIncorrect,
-      totalCorrect,
-      totalUnanswered,
-      totalMarked,
-      timeSpent,
-    });
-    if (last == true) {
-      setLastQues(true);
+    const { data } = await axios.post(
+      `${BACKEND_URL}/api/v1/package-test-result/submit/answer`,
+      dataToSend
+    );
+
+    if (data.statusCode == 200) {
+      if (last == true) {
+        completeTheTest();
+
+        history.push(`/user/result/${localStorage.getItem(GENERATED_TEST_ID)}`);
+
+        // setLastQues(true);
+      }
+      setcountQuestion(countQuestion + 1);
     }
+    // setFormData({
+    //   ...formData,
+    //   questions_details: [...formData.questions_details, pushTheAns],
+    //   totalQuestion,
+    //   totalIncorrect,
+    //   totalCorrect,
+    //   totalUnanswered,
+    //   totalMarked,
+    //   timeSpent,
+    // });
+
+    // setcountQuestion(countQuestion + 1);
     // setcountQuestion(countQuestion + 1);
   };
 
@@ -314,6 +382,20 @@ export default function LearningMode() {
   // }, [questionCount, totalQuestion]);
 
   useEffect(() => {
+    window.onbeforeunload = confirmExit;
+    function confirmExit() {
+      return "You have attempted to leave this page. Are you sure?";
+    }
+
+    function preback() {
+      window.history.forward();
+    }
+    setTimeout(preback(), 0);
+    window.onunload = function () {
+      return null;
+    };
+    //
+
     let _time = 0;
     const count = setInterval(() => {
       _time = _time + 1;
@@ -322,16 +404,31 @@ export default function LearningMode() {
     }, 1000);
     return () => clearInterval(count);
   }, [questionCount]);
-
+  const calCulateTime = () => {
+    console.log(endTestTime, "<<<endt time");
+    const TimeStampDiff = endTestTime - Date.now();
+    const Min = TimeStampDiff / 60000;
+    console.log(parseInt(Min), "<<<<minutes");
+    const checkMin = parseInt(Min);
+    if (Min.toFixed(1) < 0) {
+      console.log(checkMin, Min.toFixed(1), "<<<check min");
+      completeTheTest();
+      history.push(`/user/result/${localStorage.getItem(GENERATED_TEST_ID)}`);
+    } else {
+      console.log("else check min", Min.toFixed(1));
+    }
+    return <h3> {Min.toFixed(1)} Minutes Left</h3>;
+  };
   return (
     <>
       <NavBar time={time} mode={mode} />
       <div style={styles.container}>
         <QuestionProgress />
+        <div>{endTestTime != 0 && calCulateTime()}</div>
         <Box sx={styles.subContainer1}>
           <Typography
             sx={styles.questionTitle}
-          >{`Question ${countQuestion}.`}</Typography>
+          >{`Question ${countQuestion}.`}</Typography>{" "}
           <Typography sx={styles.question}>
             {true ? (
               <div

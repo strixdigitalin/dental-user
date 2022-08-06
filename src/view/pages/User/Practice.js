@@ -31,13 +31,14 @@ import {
 import { makeStyles } from "@material-ui/core";
 import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 import { NavLink, useHistory } from "react-router-dom";
-import api from "../../../infrastructure/utils/axios";
+import api, { headers } from "../../../infrastructure/utils/axios";
 import PackageBox from "../../component/PackageBox";
 import axios from "axios";
 import {
   BACKEND_URL,
   CURRENT_QUESTION,
   CURRENT_SELECTED_PACKAGE,
+  GENERATED_TEST_ID,
   TOTAL_SELECTED_QUESTION,
 } from "../../Constant";
 // import { UserContext } from "../../../UserContext";
@@ -108,8 +109,6 @@ const ShowSelectionContainer = ({ data }) => {
   const { selectedSubjects, selectedTopics, selectedSubTopics } = useSelector(
     questionSelectors.getQuestionMetaData
   );
-
-  // console.log("selectedSubjects :: ",selectedSubjects);
 
   const handleSubjectChange = (id, checked) => {
     checked
@@ -294,6 +293,10 @@ const Practice = () => {
     },
   ];
 
+  const UserData = useSelector((state) => state.auth);
+
+  console.log(UserData, "<<<user Data");
+
   const [testExists, setTestExists] = useState(async () => {
     const res = await api.get("question/testExists");
     const data = await res.data;
@@ -368,13 +371,39 @@ const Practice = () => {
   const minMaxValue = (e) => {
     setTotal(e.target.value);
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     localStorage.setItem(TOTAL_SELECTED_QUESTION, total);
     localStorage.setItem(CURRENT_QUESTION, 1);
-    const { id, questionCount } = questionSelectionData[selectedPackage];
+
+    const { id, questionCount, title } = questionSelectionData[selectedPackage];
+    console.log(title, "<<<title");
     localStorage.setItem(CURRENT_SELECTED_PACKAGE, id);
-    if (questionCount >= total) history.push("/user/test");
-    else {
+
+    if (questionCount >= total) {
+      const { data } = await axios.post(
+        `${BACKEND_URL}/api/v1/package-test-result/add`,
+        {
+          test_name: title,
+          package: id,
+          mode: "TEST",
+          questions_details: [],
+          totalQuestion: total,
+          totalIncorrect: 0,
+          totalCorrect: 0,
+          totalUnanswered: 0,
+          totalMarked: 0,
+          totalTimeSpend: 0,
+          endTime: Date.now() + 60000 * total * 3,
+        },
+        {
+          headers: headers(),
+        }
+      );
+      if (data.statusCode == 200) {
+        localStorage.setItem(GENERATED_TEST_ID, data.data._id);
+        history.push("/user/test");
+      }
+    } else {
       alert("You can select maximum:" + questionCount);
     }
   };

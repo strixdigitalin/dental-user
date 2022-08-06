@@ -118,6 +118,13 @@ export default function Result() {
     setpackageResult(data.data);
   }, []);
 
+  const calculateScpre = () => {
+    const score =
+      (+packageResult.totalCorrect * 100) / packageResult.totalQuestion;
+    console.log(score, "<<<this is score");
+    return score;
+  };
+
   console.log("results :: ", results);
   return (
     <div>
@@ -133,12 +140,14 @@ export default function Result() {
           }}
         >
           <div>
-            <Typography>Your Score</Typography>
+            <Typography>Your Scorde</Typography>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <ProgressBar progress={packageResult.totalScore} />
-              <Typography>{`${Math.ceil(
+              {/* <ProgressBar progress={packageResult.totalScore} /> */}
+              <ProgressBar progress={calculateScpre()} />
+              <Typography>{calculateScpre()}</Typography>
+              {/* <Typography>{`${Math.ceil(
                 packageResult["totalScore"]
-              )} %`}</Typography>
+              )} %`}</Typography> */}
             </div>
           </div>
           <div>
