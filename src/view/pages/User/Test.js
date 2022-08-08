@@ -387,9 +387,9 @@ export default function LearningMode() {
       return "You have attempted to leave this page. Are you sure?";
     }
 
-    // function preback() {
-    //   window.history.forward();
-    // }
+    function preback() {
+      window.history.forward();
+    }
     setTimeout(preback(), 0);
     window.onunload = function () {
       return null;
