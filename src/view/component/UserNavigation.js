@@ -201,11 +201,11 @@ export default function Navigation() {
                   <b>Topic Performance</b>
                 </Typography>
               </CustomNavLink>
-              <CustomNavLink to="/user/notes">
+              {/* <CustomNavLink to="/user/notes">
                 <Typography sx={{ mr: 5, ...styles.navLinks }}>
                   <b>Notes</b>
                 </Typography>
-              </CustomNavLink>
+              </CustomNavLink> */}
               <div style={{ display: "flex", alignItems: "center" }}>
                 <Typography fontWeight="500">{name}</Typography>
                 <IconButton
@@ -234,7 +234,9 @@ export default function Navigation() {
                   onClose={handleCloseLogin}
                 >
                   <MenuItem onClick={handleCloseLogin}>Profile</MenuItem>
-                  <MenuItem onClick={() => history.push("/user/subscriptions")}>Subscription</MenuItem>
+                  <MenuItem onClick={() => history.push("/user/subscriptions")}>
+                    Subscription
+                  </MenuItem>
                   <MenuItem
                     onClick={() => {
                       handleCloseLogin();
@@ -283,9 +285,9 @@ export default function Navigation() {
           <Typography className={classes.navLinks} sx={{ mr: 5 }}>
             <b>Topic Performance</b>
           </Typography>
-          <Typography className={classes.navLinks} sx={{ mr: 5 }}>
+          {/* <Typography className={classes.navLinks} sx={{ mr: 5 }}>
             <b>Notes</b>
-          </Typography>
+          </Typography> */}
         </Box>
       </Drawer>
     </>

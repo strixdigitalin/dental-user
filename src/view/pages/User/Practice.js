@@ -393,7 +393,7 @@ const Practice = () => {
           totalUnanswered: 0,
           totalMarked: 0,
           totalTimeSpend: 0,
-          endTime: Date.now() + 60000 * total * 3,
+          endTime: Date.now() + 60000 * total * 0.9,
         },
         {
           headers: headers(),
@@ -578,7 +578,7 @@ const Practice = () => {
             <span style={{ color: "red" }}> *</span>
           </Typography>
           <Typography style={{ color: "red", paddingLeft: "1em" }}>
-            Please enter valid number 10 to 100
+            Please enter valid number 10 to 200
           </Typography>
         </Box>
         {/* {total > 0 && total < 100 && selectedSubTopics.length > 0 ? ( */}
