@@ -191,16 +191,16 @@ export default function Navigation() {
                   <b>Previous Tests</b>
                 </Typography>
               </CustomNavLink>
-              <CustomNavLink to="/user/test-performance">
+              {/* <CustomNavLink to="/user/test-performance">
                 <Typography sx={{ mr: 5, ...styles.navLinks }}>
                   <b>Test Performance</b>
                 </Typography>
-              </CustomNavLink>
-              <CustomNavLink to="/user/topic-performance">
+              </CustomNavLink> */}
+              {/* <CustomNavLink to="/user/topic-performance">
                 <Typography sx={{ mr: 5, ...styles.navLinks }}>
                   <b>Topic Performance</b>
                 </Typography>
-              </CustomNavLink>
+              </CustomNavLink> */}
               {/* <CustomNavLink to="/user/notes">
                 <Typography sx={{ mr: 5, ...styles.navLinks }}>
                   <b>Notes</b>
@@ -279,12 +279,12 @@ export default function Navigation() {
           <Typography className={classes.navLinks} sx={{ mr: 5 }}>
             <b>Previous Tests</b>
           </Typography>
-          <Typography className={classes.navLinks} sx={{ mr: 5 }}>
+          {/* <Typography className={classes.navLinks} sx={{ mr: 5 }}>
             <b>Test Performance</b>
           </Typography>
           <Typography className={classes.navLinks} sx={{ mr: 5 }}>
             <b>Topic Performance</b>
-          </Typography>
+          </Typography> */}
           {/* <Typography className={classes.navLinks} sx={{ mr: 5 }}>
             <b>Notes</b>
           </Typography> */}

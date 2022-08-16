@@ -35,6 +35,7 @@ const styles = {
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
+    overflowY: "scroll",
   },
   navbarContainer: {
     backgroundColor: "primary.main",
@@ -201,6 +202,7 @@ export default function LearningMode() {
       setonScreenQuestion(data.data[0]);
       setSelectedOption(null);
       setSelected(null);
+      setMarked(false);
     } else {
       alert("submit");
     }
@@ -280,7 +282,8 @@ export default function LearningMode() {
     const pushTheAns = {
       question: onScreenQuestion.id,
       isUnused: selectedOption != null ? false : true,
-      isMarked: selectedOption != null ? true : false,
+      // isMarked: selectedOption != null ? true : false,
+      isMarked: marked,
       isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
       isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
       timeSpend: time,
@@ -461,14 +464,20 @@ export default function LearningMode() {
             {marked ? (
               <ModifiedButton
                 variant="outlined"
-                onClick={() => setMarked(false)}
+                onClick={() => {
+                  setSelectedOption(null);
+                  setSelected(null);
+                  setMarked(false);
+                }}
               >
                 Unmark
               </ModifiedButton>
             ) : (
               <ModifiedButton
                 variant="outlined"
-                onClick={() => setMarked(true)}
+                onClick={() => {
+                  if (selectedOption) setMarked(true);
+                }}
               >
                 Mark
               </ModifiedButton>

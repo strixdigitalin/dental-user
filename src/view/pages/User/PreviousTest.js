@@ -12,6 +12,9 @@ import { makeStyles } from "@mui/styles";
 import UserNavigation from "../../component/UserNavigation";
 import UserFooter from "../../component/UserFooter";
 import api from "../../../infrastructure/utils/axios";
+import { BACKEND_URL } from "../../Constant";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles({
   thead: {
@@ -48,8 +51,15 @@ function createData(score, testName, date, mode, testResult) {
 export default function PreviousTest() {
   const [tests, setTests] = useState([]);
   const classes = useStyles();
+  const UserData = useSelector((state) => state.auth);
+  const { userId } = UserData.user;
   useEffect(() => {
-    api.get("testResult/all").then((res) => setTests([...res.data.data]));
+    console.log(UserData);
+    api
+      .get(`${BACKEND_URL}/api/v1/package-test-result/previous`, {
+        params: { user: userId },
+      })
+      .then((res) => setTests([...res.data.data].reverse()));
   }, []);
   return (
     <>
@@ -70,7 +80,7 @@ export default function PreviousTest() {
                   Score
                 </StyledTableCell>
                 <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
-                  Test Name
+                  Package
                 </StyledTableCell>
                 <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
                   Date
@@ -100,7 +110,12 @@ export default function PreviousTest() {
                     } %`}
                   </StyledTableCell>
                   <StyledTableCell align="center" style={{ fontSize: "16px" }}>
-                    {test.test_name}
+                    <Link
+                      to={`/user/result/${test?._id}`}
+                      style={{ textDecoration: "none" }}
+                    >
+                      {test?.package?.title}
+                    </Link>
                   </StyledTableCell>
                   <StyledTableCell align="center" style={{ fontSize: "16px" }}>
                     {test["createdAt"].slice(0, 10)}
@@ -115,6 +130,7 @@ export default function PreviousTest() {
                       ? "Good"
                       : "Excellent"}
                   </StyledTableCell>
+                  {/* </span> */}
                 </StyledTableRow>
               ))}
             </TableBody>

@@ -27,6 +27,7 @@ const styles = {
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
+    overflowY: "scroll",
   },
   navbarContainer: {
     backgroundColor: "primary.main",
