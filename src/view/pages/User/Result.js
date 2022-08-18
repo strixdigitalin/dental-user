@@ -141,7 +141,7 @@ export default function Result() {
           }}
         >
           <div>
-            <Typography>Your Scorde</Typography>
+            <Typography>Your Score</Typography>
             <div style={{ display: "flex", alignItems: "center" }}>
               {/* <ProgressBar progress={packageResult.totalScore} /> */}
               <ProgressBar progress={calculateScpre()} />
@@ -170,10 +170,10 @@ export default function Result() {
                 {/* Question */}
                 Answer
               </StyledTableCell>
-              <StyledTableCell sx={{ fontSize: "20px" }} align="left">
-                {/* Question */}
-                Marked
-              </StyledTableCell>
+              <StyledTableCell
+                sx={{ fontSize: "20px" }}
+                align="left"
+              ></StyledTableCell>
 
               {packageResult.mode === "TEST" ? (
                 <StyledTableCell sx={{ fontSize: "20px" }} align="left">
@@ -200,14 +200,23 @@ export default function Result() {
                   />
                 </StyledTableCell>
                 <StyledTableCell sx={{ fontSize: "16px" }} align="left">
-                  {result?.isCorrect == true ? "Correct" : "Incorrect"}
+                  {!result.isMarked
+                    ? "Unanswered"
+                    : result?.isCorrect == true
+                    ? "Correct"
+                    : "Incorrect"}
                 </StyledTableCell>
                 <StyledTableCell sx={{ fontSize: "16px" }} align="left">
-                  {result?.isMarked == true ? "Yes" : "No"}
                   {!result?.timeSpend ? (
                     <IconButton
                       onClick={() => {
-                        dispatch(setQuestionDetail(result?.question));
+                        // dispatch(setQuestionDetail(result?.question));
+                        dispatch(
+                          setQuestionDetail({
+                            allData: packageResult.questions_details,
+                            currQuestion: idx,
+                          })
+                        );
                         history.push("/user/explanation");
                       }}
                     >
@@ -220,7 +229,14 @@ export default function Result() {
                     {result?.timeSpend}s
                     <IconButton
                       onClick={() => {
-                        dispatch(setQuestionDetail(result?.question));
+                        // dispatch(setQuestionDetail(result?.question));
+
+                        dispatch(
+                          setQuestionDetail({
+                            allData: packageResult.questions_details,
+                            currQuestion: idx,
+                          })
+                        );
                         history.push("/user/explanation");
                       }}
                     >

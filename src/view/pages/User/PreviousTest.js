@@ -48,6 +48,12 @@ function createData(score, testName, date, mode, testResult) {
   return { score, testName, date, mode, testResult };
 }
 
+const calculateScpre = (correct, question) => {
+  const score = (+correct * 100) / question;
+  console.log(score, "<<<this is score");
+  return `${score} %`;
+};
+
 export default function PreviousTest() {
   const [tests, setTests] = useState([]);
   const classes = useStyles();
@@ -80,7 +86,7 @@ export default function PreviousTest() {
                   Score
                 </StyledTableCell>
                 <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
-                  Package
+                  Test
                 </StyledTableCell>
                 <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
                   Date
@@ -88,9 +94,9 @@ export default function PreviousTest() {
                 <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
                   Mode
                 </StyledTableCell>
-                <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
+                {/* <StyledTableCell align="center" sx={{ fontSize: "20px" }}>
                   Test Result
-                </StyledTableCell>
+                </StyledTableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -102,12 +108,8 @@ export default function PreviousTest() {
                     className={classes.row}
                     style={{ fontSize: "16px" }}
                   >
-                    {`${
-                      Math.ceil(test["totalScore"]) - test["totalScore"] <=
-                      test["totalScore"] - Math.floor(test["totalScore"])
-                        ? Math.ceil(test["totalScore"])
-                        : Math.floor(test["totalScore"])
-                    } %`}
+                    {calculateScpre(test.totalCorrect, test.totalQuestion)}
+                    {/* 55 */}
                   </StyledTableCell>
                   <StyledTableCell align="center" style={{ fontSize: "16px" }}>
                     <Link
@@ -123,13 +125,13 @@ export default function PreviousTest() {
                   <StyledTableCell align="center" style={{ fontSize: "16px" }}>
                     {test.mode}
                   </StyledTableCell>
-                  <StyledTableCell align="center" style={{ fontSize: "16px" }}>
+                  {/* <StyledTableCell align="center" style={{ fontSize: "16px" }}>
                     {test.totalScore < 10
                       ? "Poor"
                       : 10 < test.totalScore && test.totalScore <= 50
                       ? "Good"
                       : "Excellent"}
-                  </StyledTableCell>
+                  </StyledTableCell> */}
                   {/* </span> */}
                 </StyledTableRow>
               ))}

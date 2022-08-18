@@ -74,7 +74,7 @@ export default function TestPerfomance() {
     );
     console.log(data.data);
     setTests(data.data);
-  });
+  }, []);
   return (
     <>
       <UserNavigation />

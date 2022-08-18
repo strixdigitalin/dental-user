@@ -11,6 +11,9 @@ const explanationSlice = createSlice({
       state.questionDetail = {
         ...payload,
       };
+      // state.questionDetail = {
+      //   ...payload,
+      // };
     },
   },
 });

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Box, Typography, Button } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import {
@@ -64,13 +64,38 @@ correctOption.forEach(function (options) {
 const Explanation = () => {
   const _histoty = useHistory();
   const dispatch = useDispatch();
-
+  const [currQuestion, setCurrQuestion] = useState({ index: 0, data: {} });
   const questionDetail = useSelector(
     (state) => state.explanation.questionDetail
   );
 
   const classes = useStyles();
+  useEffect(() => {
+    console.log(questionDetail, "<<<");
+    setCurrQuestion({
+      index: questionDetail?.currQuestion,
+      data: questionDetail?.allData[questionDetail.currQuestion],
+    });
+    // console.log(currQuestion);
+  }, []);
+  console.log(currQuestion, "<<<curr");
+  const hanldeQuestion = (value) => {
+    if (value == "for") {
+      const newIndex = +currQuestion.index + 1;
+      setCurrQuestion({
+        index: newIndex,
+        data: questionDetail.allData[newIndex],
+      });
+    }
+    if (value == "back") {
+      const newIndex = +currQuestion.index - 1;
 
+      setCurrQuestion({
+        index: newIndex,
+        data: questionDetail.allData[newIndex],
+      });
+    }
+  };
   return (
     <>
       <UserNavigation />
@@ -86,24 +111,33 @@ const Explanation = () => {
         >
           Back
         </Button>
-        <Box className={classes.QuestionBox}>
-          {/* <Typography
-            variant="h5"
-            style={{
-              fontWeight: "bold",
-              fontSize: "20px",
-              color: "#000000",
-              padding: "20px",
-            }}
+        {0 != currQuestion.index && (
+          <Button
+            onClick={() => hanldeQuestion("back")}
+            variant="contained"
+            sx={{ position: "fixed", left: 120, top: 75 }}
           >
-            Question. 1
-          </Typography> */}
+            Previous
+          </Button>
+        )}
+        {questionDetail.allData.length - 1 != currQuestion.index && (
+          <Button
+            onClick={() => hanldeQuestion("for")}
+            variant="contained"
+            sx={{ position: "fixed", right: 10, top: 75 }}
+          >
+            Forward
+          </Button>
+        )}
+        <Box className={classes.QuestionBox}>
           <Typography
             variant="h5"
             style={{ fontSize: "20px", color: "#535353", padding: "20px" }}
           >
             <div
-              dangerouslySetInnerHTML={{ __html: questionDetail.questionTitle }}
+              dangerouslySetInnerHTML={{
+                __html: currQuestion?.data?.question?.questionTitle,
+              }}
             />
           </Typography>
         </Box>
@@ -111,7 +145,7 @@ const Explanation = () => {
         <br />
         <Container maxWidth="xl">
           <Box display="flex" justifyContent="space-around" flexWrap="wrap">
-            {questionDetail["options"].map((option, i) => (
+            {currQuestion?.data?.question?.options?.map((option, i) => (
               <Button
                 style={{ margin: "20px" }}
                 className={classes.option}
@@ -151,7 +185,9 @@ const Explanation = () => {
             Explanation
           </Typography>
           <div
-            dangerouslySetInnerHTML={{ __html: questionDetail.explaination }}
+            dangerouslySetInnerHTML={{
+              __html: currQuestion?.data?.question?.explaination,
+            }}
           />
         </Box>
       </Container>
