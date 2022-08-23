@@ -24,6 +24,7 @@ import {
 } from "../../Constant";
 import axios from "axios";
 import { headers } from "../../../infrastructure/utils/axios";
+import PracticeTime from "../../component/PracticeTime";
 
 const styles = {
   container: {
@@ -149,6 +150,8 @@ export default function LearningMode() {
   const totalSelecteQuestion = localStorage.getItem(TOTAL_SELECTED_QUESTION);
   const selectedPackage = localStorage.getItem(CURRENT_SELECTED_PACKAGE);
 
+  const [practiceTime, setPracticeTime] = useState("0:0:0");
+
   const [runTime, setRunTime] = useState(0);
   const [formData, setFormData] = useState({
     timeSpent: 0,
@@ -165,6 +168,10 @@ export default function LearningMode() {
   const [marked, setMarked] = useState(false);
   const [countQuestion, setcountQuestion] = useState(+currQuestion);
   const [onScreenQuestion, setonScreenQuestion] = useState({});
+  const [testMode, setTestMode] = useState(null);
+  function disableBackButton() {
+    window.history.forward();
+  }
 
   useEffect(async () => {
     disableBackButton();
@@ -193,10 +200,6 @@ export default function LearningMode() {
       // alert("submit");
     }
   }, [countQuestion]);
-
-  function disableBackButton() {
-    window.history.forward();
-  }
 
   useEffect(async () => {
     let interval = null;
@@ -240,7 +243,7 @@ export default function LearningMode() {
     );
     console.log(data, "<<<<<<prev");
     const { questions_details } = data.data;
-    // console.log()
+    setTestMode(data.data.mode);
     if (questions_details.length > 0) {
       setsaveQuestionDetails(questions_details);
       console.log(
@@ -307,6 +310,8 @@ export default function LearningMode() {
         isMarked: marked,
         isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
         isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
+        totalPracticeTime: testMode == "LEARNING" ? practiceTime : "null",
+
         // timeSpend: time,
       };
       // setcountQuestion(countQuestion + 1);
@@ -324,6 +329,7 @@ export default function LearningMode() {
         isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
         isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
         timeSpend: time,
+        totalPracticeTime: testMode == "LEARNING" ? practiceTime : "null",
       };
     }
 
@@ -388,28 +394,6 @@ export default function LearningMode() {
     handleNextQuestion(true);
     // setLastQues()
   };
-  // console.log(onScreenQuestion, "<<<<<get questions");
-
-  // useEffect(() => {
-  //   (async () => {
-  //     // alert(`quest ${questionCount}`);
-  //     let response = await dispatch(fetchQuestions({ page: questionCount }));
-  //     console.log(response, "response");
-  //     if (
-  //       totalQuestion !== null &&
-  //       totalQuestion === 0 &&
-  //       response?.payload?.data?.count === 0
-  //     ) {
-  //       history.goBack();
-  //       dispatch(
-  //         actions.showAlert({
-  //           type: ALERT_TYPES.ERROR,
-  //           message: "No questions available",
-  //         })
-  //       );
-  //     }
-  //   })();
-  // }, [questionCount, totalQuestion]);
 
   useEffect(() => {
     window.onbeforeunload = confirmExit;
@@ -434,6 +418,7 @@ export default function LearningMode() {
     }, 1000);
     return () => clearInterval(count);
   }, [questionCount]);
+
   const calCulateTime = () => {
     console.log(endTestTime, "<<<endt time");
     const TimeStampDiff = endTestTime - Date.now();
@@ -465,7 +450,15 @@ export default function LearningMode() {
       <NavBar time={time} mode={mode} />
       <div style={styles.container}>
         <QuestionProgress />
-        <div>{endTestTime != 0 && calCulateTime()}</div>
+        {testMode == "TEST" && <div>{endTestTime != 0 && calCulateTime()}</div>}
+        <div>
+          {testMode == "LEARNING" && (
+            <PracticeTime
+              practiceTime={practiceTime}
+              setPracticeTime={setPracticeTime}
+            />
+          )}
+        </div>
         <Box sx={styles.subContainer1}>
           <Typography
             sx={styles.questionTitle}
@@ -499,9 +492,11 @@ export default function LearningMode() {
             <ModifiedButton variant="outlined" onClick={cancelExam}>
               Cancel Test
             </ModifiedButton>
-            <ModifiedButton variant="outlined" onClick={goToPrevious}>
-              Previous Question
-            </ModifiedButton>
+            {+currQuestion > 1 && (
+              <ModifiedButton variant="outlined" onClick={goToPrevious}>
+                Previous Question
+              </ModifiedButton>
+            )}
             {marked ? (
               <ModifiedButton
                 variant="outlined"
