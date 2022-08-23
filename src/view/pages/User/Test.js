@@ -169,6 +169,10 @@ export default function LearningMode() {
   const [countQuestion, setcountQuestion] = useState(+currQuestion);
   const [onScreenQuestion, setonScreenQuestion] = useState({});
   const [testMode, setTestMode] = useState(null);
+  function disableBackButton() {
+    window.history.forward();
+  }
+
   useEffect(async () => {
     disableBackButton();
     setTimeout("disableBackButton()", 0);
@@ -196,10 +200,6 @@ export default function LearningMode() {
       // alert("submit");
     }
   }, [countQuestion]);
-
-  function disableBackButton() {
-    window.history.forward();
-  }
 
   useEffect(async () => {
     let interval = null;
@@ -310,6 +310,8 @@ export default function LearningMode() {
         isMarked: marked,
         isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
         isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
+        totalPracticeTime: testMode == "LEARNING" ? practiceTime : "null",
+
         // timeSpend: time,
       };
       // setcountQuestion(countQuestion + 1);
@@ -327,6 +329,7 @@ export default function LearningMode() {
         isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
         isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
         timeSpend: time,
+        totalPracticeTime: testMode == "LEARNING" ? practiceTime : "null",
       };
     }
 
@@ -489,9 +492,11 @@ export default function LearningMode() {
             <ModifiedButton variant="outlined" onClick={cancelExam}>
               Cancel Test
             </ModifiedButton>
-            <ModifiedButton variant="outlined" onClick={goToPrevious}>
-              Previous Question
-            </ModifiedButton>
+            {+currQuestion > 1 && (
+              <ModifiedButton variant="outlined" onClick={goToPrevious}>
+                Previous Question
+              </ModifiedButton>
+            )}
             {marked ? (
               <ModifiedButton
                 variant="outlined"
