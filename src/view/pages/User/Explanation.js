@@ -183,9 +183,10 @@ const Explanation = () => {
                 padding: "20px",
               }}
             >
-              {currQuestion.data.markedOption == null
-                ? "You didn't attempt the question"
-                : `You Selected: Option ${+currQuestion.data.markedOption + 1}`}
+              {currQuestion.data.markedOption != null &&
+              currQuestion.data.markedOption != "null"
+                ? `You Selected: Option ${+currQuestion.data.markedOption + 1}`
+                : "You didn't attempt the question"}
             </Typography>
           </div>
           <div>

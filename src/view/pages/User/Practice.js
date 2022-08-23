@@ -306,7 +306,7 @@ const Practice = () => {
   const [checked, setChecked] = useState([0]);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const history = useHistory();
-  const [mode, setMode] = useState("learning");
+  const [mode, setMode] = useState("LEARNING");
   const [total, setTotal] = useState(null);
   const [filters, setFilters] = useState({
     unused: true,
@@ -385,7 +385,7 @@ const Practice = () => {
         {
           test_name: title,
           package: id,
-          mode: "TEST",
+          mode: mode,
           questions_details: [],
           totalQuestion: total,
           totalIncorrect: 0,
@@ -443,11 +443,16 @@ const Practice = () => {
               onChange={(e) => setMode(e.target.value)}
             >
               <FormControlLabel
-                value="learning"
+                value="LEARNING"
                 control={<Radio />}
                 label="Practice"
               />
-              <FormControlLabel value="test" control={<Radio />} label="Test" />
+              <FormControlLabel
+                value="TEST"
+                onChange={(e) => setMode(e.target.value)}
+                control={<Radio />}
+                label="Test"
+              />
             </RadioGroup>
           </div>
         </Box>

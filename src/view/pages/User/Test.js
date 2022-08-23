@@ -188,9 +188,9 @@ export default function LearningMode() {
       setSelectedOption(null);
       setSelected(null);
       setMarked(false);
-      getCompleteTestData();
+      getCompleteTestData(data.data[0]);
     } else {
-      alert("submit");
+      // alert("submit");
     }
   }, [countQuestion]);
 
@@ -227,11 +227,12 @@ export default function LearningMode() {
     };
   }, [endTestTime]);
 
-  useEffect(() => {
-    getCompleteTestData();
-  }, []);
-  const getCompleteTestData = async () => {
+  // useEffect(() => {
+  //   getCompleteTestData();
+  // }, []);
+  const getCompleteTestData = async (currQuestion) => {
     console.log(countQuestion, "<<<prev count question");
+
     const { data } = await axios.get(
       `${BACKEND_URL}/api/v1/package-test-result/${localStorage.getItem(
         GENERATED_TEST_ID
@@ -242,11 +243,41 @@ export default function LearningMode() {
     // console.log()
     if (questions_details.length > 0) {
       setsaveQuestionDetails(questions_details);
-      const prevQuestion = saveQuestionDetails[+countQuestion - 1];
-      setPreviousSavedAnswer(prevQuestion);
-      console.log(prevQuestion, "<<<<Prev <<que");
-      const parseInt = +prevQuestion?.markedOption;
-      setSelected(parseInt);
+      console.log(
+        currQuestion,
+        "<<previous on Screen question",
+        questions_details
+      );
+      const getIfquestionVisited = questions_details.filter(
+        (item) => item?.question?.id == currQuestion?.id
+      );
+
+      const prevQuestion = saveQuestionDetails[+countQuestion - 1]; // -1 Because in screen countQuestion is 1 but in question_detail[] its index is 0
+      // if(prevQ)
+
+      console.log(getIfquestionVisited, "previos question visited");
+      if (getIfquestionVisited.length) {
+        // const {markedOption}
+        setPreviousSavedAnswer(getIfquestionVisited[0]);
+        setSelected(parseInt(getIfquestionVisited[0].markedOption));
+
+        if (getIfquestionVisited[0].markedOption != "null") {
+          // alert(`not null ${getIfquestionVisited[0].markedOption}`);
+          setMarked(true);
+        } else {
+          // alert(`null ${getIfquestionVisited[0].markedOption}`);
+        }
+
+        setSelectedOption(+getIfquestionVisited[0]);
+      }
+
+      // if (prevQuestion) {
+      //   console.log(prevQuestion, "<<<This is previous question<<<<");
+
+      //   console.log(prevQuestion, "<<<<Prev <<que");
+      //   const parseInt = +prevQuestion?.markedOption;
+      //   setSelected(parseInt);
+      // }
     }
   };
 
@@ -261,16 +292,34 @@ export default function LearningMode() {
   const handleNextQuestion = async (last = false) => {
     let pushTheAns = {};
     console.log(selectedOption, "<<<<");
-    if (selected == previousSavedAnswer?.markedOption) {
-      alert("same");
-      pushTheAns = { ...previousSavedAnswer };
-      // return null;
-    } else {
+
+    // return null;
+    if (
+      selectedOption != null &&
+      selected == previousSavedAnswer?.markedOption
+    ) {
+      // alert("same");
       pushTheAns = {
         question: onScreenQuestion.id,
         isUnused: selectedOption != null ? false : true,
         markedOption: selected != null ? selected : "null",
-        // isMarked: selectedOption != null ? true : false,
+        isMarked: selectedOption != null ? true : false,
+        isMarked: marked,
+        isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
+        isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
+        // timeSpend: time,
+      };
+      // setcountQuestion(countQuestion + 1);
+
+      // pushTheAns = { ...previousSavedAnswer };
+      // return null;
+    } else {
+      // alert(`else ${selected}`);
+      pushTheAns = {
+        question: onScreenQuestion.id,
+        isUnused: selectedOption != null ? false : true,
+        markedOption: selected != null ? selected : "null",
+        isMarked: selectedOption != null ? true : false,
         isMarked: marked,
         isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
         isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
@@ -279,6 +328,7 @@ export default function LearningMode() {
     }
 
     // ----------
+    console.log(pushTheAns, "<<<SEnding this");
     const totalQuestion = +formData.totalQuestion + 1;
     const timeSpent = +formData.timeSpent + +time;
     const totalIncorrect =
@@ -327,7 +377,7 @@ export default function LearningMode() {
         completeTheTest();
 
         history.push(`/user/result/${localStorage.getItem(GENERATED_TEST_ID)}`);
-        // setLastQues(true);
+        setLastQues(true);
       }
       setcountQuestion(countQuestion + 1);
     }
@@ -404,7 +454,7 @@ export default function LearningMode() {
     const prevCount = countQuestion - 1;
     console.log(prevCount, "<previous count");
     setcountQuestion(prevCount);
-    getCompleteTestData();
+    // getCompleteTestData();
     // const prevQuestion = saveQuestionDetails[prevCount - 1];
     // setSelected(prevQuestion.markedOption);
     // console.log(prevQuestion, "<<<<Previous Question");
@@ -485,7 +535,7 @@ export default function LearningMode() {
                 //  onClick={nextHandler}
                 onClick={() => {
                   handleNextQuestion();
-                  setcountQuestion(countQuestion + 1);
+                  // setcountQuestion(countQuestion + 1);
                 }}
               >
                 Save &amp; Next
