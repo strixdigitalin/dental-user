@@ -460,7 +460,7 @@ const Practice = () => {
               margin: "30px auto",
             }}
           >
-            <div>
+            {/* <div>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -507,7 +507,7 @@ const Practice = () => {
                 }
                 label="All"
               />
-            </div>
+            </div> */}
           </Box>
         ) : null}
 

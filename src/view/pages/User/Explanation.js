@@ -173,22 +173,39 @@ const Explanation = () => {
           >
             Correct Option Is
           </Button> */}
-          <Typography
-            variant="h5"
-            style={{
-              fontWeight: "bold",
-              fontSize: "20px",
-              color: "#000000",
-              padding: "20px",
-            }}
-          >
-            Explanation
-          </Typography>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: currQuestion?.data?.question?.explaination,
-            }}
-          />
+          <div>
+            <Typography
+              variant="h5"
+              style={{
+                fontWeight: "bold",
+                fontSize: "20px",
+                color: "#000000",
+                padding: "20px",
+              }}
+            >
+              {currQuestion.data.markedOption == null
+                ? "You didn't attempt the question"
+                : `You Selected: Option ${+currQuestion.data.markedOption + 1}`}
+            </Typography>
+          </div>
+          <div>
+            <Typography
+              variant="h5"
+              style={{
+                fontWeight: "bold",
+                fontSize: "20px",
+                color: "#000000",
+                padding: "20px",
+              }}
+            >
+              Explanation
+            </Typography>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: currQuestion?.data?.question?.explaination,
+              }}
+            />
+          </div>
         </Box>
       </Container>
     </>

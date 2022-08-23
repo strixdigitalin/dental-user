@@ -182,6 +182,7 @@ export default function Result() {
               ) : null}
             </TableRow>
           </TableHead>
+
           <TableBody>
             {packageResult?.questions_details?.map((result, idx) => (
               <StyledTableRow key={result?.name}>
@@ -248,6 +249,16 @@ export default function Result() {
             ))}
           </TableBody>
         </Table>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          {packageResult?.questions_details?.length == 0 &&
+            "No Question answered"}
+        </div>
       </div>
     </div>
   );

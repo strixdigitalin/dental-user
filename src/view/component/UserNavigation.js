@@ -233,10 +233,10 @@ export default function Navigation() {
                   open={Boolean(loginAnchorEl)}
                   onClose={handleCloseLogin}
                 >
-                  <MenuItem onClick={handleCloseLogin}>Profile</MenuItem>
-                  <MenuItem onClick={() => history.push("/user/subscriptions")}>
+                  {/* <MenuItem onClick={handleCloseLogin}>Profile</MenuItem> */}
+                  {/* <MenuItem onClick={() => history.push("/user/subscriptions")}>
                     Subscription
-                  </MenuItem>
+                  </MenuItem> */}
                   <MenuItem
                     onClick={() => {
                       handleCloseLogin();

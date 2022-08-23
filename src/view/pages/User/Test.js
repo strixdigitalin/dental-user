@@ -122,6 +122,7 @@ export default function LearningMode() {
   const dispatch = useDispatch();
   const stateValue = useSelector((state) => state);
   const totalQuestion = useSelector((state) => state.test.totalQuestion);
+  const [AnsweredQuestion, setAnsweredQuestion] = useState([]);
   // console.log(state, "<<<<");
   const [time, setTime] = useState();
   const [testTime, setTestTime] = useState(0);
@@ -129,11 +130,13 @@ export default function LearningMode() {
   const [startTimer, setstartTimer] = useState(false);
   const mode = useSelector((state) => state.test.testResult.mode);
   const displayResult = useSelector((state) => state.test.submittedTest);
+  const [saveQuestionDetails, setsaveQuestionDetails] = useState([]);
   const questionCount = useSelector((state) => state.test.questionVisitCount);
   const question = useSelector((state) => state.test.testQuestion);
   const isReadyForSubmit = useSelector((state) => state.test.isReadyForSubmit);
   const [selectedOption, setSelectedOption] = useState(null);
   const [lastQues, setLastQues] = useState(false);
+  const [previousSavedAnswer, setPreviousSavedAnswer] = useState({});
   // const isMarked = useSelector((state) =>
   //   state.test.testResult.questions_details[questionCount - 1]
   //     ? state.test.testResult.questions_details[questionCount - 1]["isMarked"]
@@ -162,25 +165,6 @@ export default function LearningMode() {
   const [marked, setMarked] = useState(false);
   const [countQuestion, setcountQuestion] = useState(+currQuestion);
   const [onScreenQuestion, setonScreenQuestion] = useState({});
-  const nextHandler = () => {
-    setSelected(null);
-    console.log(question, "<<<<question");
-    const answerData = {
-      question: question.id,
-      isUnused: selectedOption ? false : true,
-      isMarked: marked,
-      isCorrect: selectedOption ? selectedOption["isCorrect"] : false,
-      isIncorrect: selectedOption ? !selectedOption["isCorrect"] : false,
-    };
-    mode === "TEST"
-      ? dispatch(addToResult({ ...answerData, timeSpend: time }))
-      : dispatch(addToResult(answerData));
-
-    console.log(totalQuestion, "<<<<total question");
-
-    dispatch(incrementQuestionVisitCount());
-    setSelectedOption(null);
-  };
 
   useEffect(async () => {
     disableBackButton();
@@ -198,11 +182,13 @@ export default function LearningMode() {
           },
         }
       );
+
       setstartTimer(true);
       setonScreenQuestion(data.data[0]);
       setSelectedOption(null);
       setSelected(null);
       setMarked(false);
+      getCompleteTestData();
     } else {
       alert("submit");
     }
@@ -212,16 +198,6 @@ export default function LearningMode() {
     window.history.forward();
   }
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     // setFormData({...formData,})
-  //     alert(runTime);
-
-  //     setRunTime(+runTime + 1);
-  //   }, 1000);
-
-  //   clearInterval(interval);
-  // }, []);
   useEffect(async () => {
     let interval = null;
 
@@ -251,23 +227,28 @@ export default function LearningMode() {
     };
   }, [endTestTime]);
 
-  useEffect(async () => {
-    // console.log(formData, "<<<this is formData");
-    if (lastQues == true) {
-      // const { data } = await axios.post(
-      //   `${BACKEND_URL}/api/v1/package-test-result/add`,
-      //   formData,
-      //   {
-      //     headers: headers(),
-      //   }
-      // );
-      // console.log(data, "<<<< after submit test");
-      // if (data.statusCode == 200) {
-      //   const id = data.data._id;
-      //   history.push(`/user/result/${id}`);
-      // }
+  useEffect(() => {
+    getCompleteTestData();
+  }, []);
+  const getCompleteTestData = async () => {
+    console.log(countQuestion, "<<<prev count question");
+    const { data } = await axios.get(
+      `${BACKEND_URL}/api/v1/package-test-result/${localStorage.getItem(
+        GENERATED_TEST_ID
+      )}`
+    );
+    console.log(data, "<<<<<<prev");
+    const { questions_details } = data.data;
+    // console.log()
+    if (questions_details.length > 0) {
+      setsaveQuestionDetails(questions_details);
+      const prevQuestion = saveQuestionDetails[+countQuestion - 1];
+      setPreviousSavedAnswer(prevQuestion);
+      console.log(prevQuestion, "<<<<Prev <<que");
+      const parseInt = +prevQuestion?.markedOption;
+      setSelected(parseInt);
     }
-  }, [lastQues]);
+  };
 
   const completeTheTest = async () => {
     const { data } = await axios.post(
@@ -278,16 +259,24 @@ export default function LearningMode() {
   };
 
   const handleNextQuestion = async (last = false) => {
+    let pushTheAns = {};
     console.log(selectedOption, "<<<<");
-    const pushTheAns = {
-      question: onScreenQuestion.id,
-      isUnused: selectedOption != null ? false : true,
-      // isMarked: selectedOption != null ? true : false,
-      isMarked: marked,
-      isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
-      isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
-      timeSpend: time,
-    };
+    if (selected == previousSavedAnswer?.markedOption) {
+      alert("same");
+      pushTheAns = { ...previousSavedAnswer };
+      // return null;
+    } else {
+      pushTheAns = {
+        question: onScreenQuestion.id,
+        isUnused: selectedOption != null ? false : true,
+        markedOption: selected != null ? selected : "null",
+        // isMarked: selectedOption != null ? true : false,
+        isMarked: marked,
+        isCorrect: selectedOption != null ? selectedOption.isCorrect : null,
+        isIncorrect: selectedOption != null ? !selectedOption.isCorrect : null,
+        timeSpend: time,
+      };
+    }
 
     // ----------
     const totalQuestion = +formData.totalQuestion + 1;
@@ -313,6 +302,8 @@ export default function LearningMode() {
         ? +formData.totalMarked + 1
         : +formData.totalMarked;
     // ----------------------------------------
+    console.log(pushTheAns, "<<< prev selected Option");
+    setsaveQuestionDetails([...AnsweredQuestion, pushTheAns]);
     const dataToSend = {
       testId: localStorage.getItem(GENERATED_TEST_ID),
       isTestCompleted: last ? true : false,
@@ -336,24 +327,10 @@ export default function LearningMode() {
         completeTheTest();
 
         history.push(`/user/result/${localStorage.getItem(GENERATED_TEST_ID)}`);
-
         // setLastQues(true);
       }
       setcountQuestion(countQuestion + 1);
     }
-    // setFormData({
-    //   ...formData,
-    //   questions_details: [...formData.questions_details, pushTheAns],
-    //   totalQuestion,
-    //   totalIncorrect,
-    //   totalCorrect,
-    //   totalUnanswered,
-    //   totalMarked,
-    //   timeSpent,
-    // });
-
-    // setcountQuestion(countQuestion + 1);
-    // setcountQuestion(countQuestion + 1);
   };
 
   const submitHandler = async () => {
@@ -422,6 +399,17 @@ export default function LearningMode() {
     }
     return <h3> {Min.toFixed(1)} Minutes Left</h3>;
   };
+
+  const goToPrevious = async () => {
+    const prevCount = countQuestion - 1;
+    console.log(prevCount, "<previous count");
+    setcountQuestion(prevCount);
+    getCompleteTestData();
+    // const prevQuestion = saveQuestionDetails[prevCount - 1];
+    // setSelected(prevQuestion.markedOption);
+    // console.log(prevQuestion, "<<<<Previous Question");
+  };
+
   return (
     <>
       <NavBar time={time} mode={mode} />
@@ -460,6 +448,9 @@ export default function LearningMode() {
           <div>
             <ModifiedButton variant="outlined" onClick={cancelExam}>
               Cancel Test
+            </ModifiedButton>
+            <ModifiedButton variant="outlined" onClick={goToPrevious}>
+              Previous Question
             </ModifiedButton>
             {marked ? (
               <ModifiedButton
