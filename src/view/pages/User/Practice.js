@@ -536,6 +536,7 @@ const Practice = () => {
         {/* ---- show packages */}
         <div className="package-outer">
           {questionSelectionData.map((item, index) => {
+            if (index > 1) return null;
             return (
               <PackageBox
                 index={index}
@@ -582,9 +583,9 @@ const Practice = () => {
             Enter number of questions
             <span style={{ color: "red" }}> *</span>
           </Typography>
-          <Typography style={{ color: "red", paddingLeft: "1em" }}>
+          {/* <Typography style={{ color: "red", paddingLeft: "1em" }}>
             Please enter valid number 10 to 200
-          </Typography>
+          </Typography> */}
         </Box>
         {/* {total > 0 && total < 100 && selectedSubTopics.length > 0 ? ( */}
         {total > 0 && total < 100 ? (

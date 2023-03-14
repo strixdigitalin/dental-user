@@ -120,6 +120,7 @@ const cancelExam = () => {
 export default function LearningMode() {
   const history = useHistory();
   const [selected, setSelected] = useState(null);
+  const [dumyQue, setDumyQue] = useState(1);
   const dispatch = useDispatch();
   const stateValue = useSelector((state) => state);
   const totalQuestion = useSelector((state) => state.test.totalQuestion);
@@ -169,13 +170,13 @@ export default function LearningMode() {
   const [countQuestion, setcountQuestion] = useState(+currQuestion);
   const [onScreenQuestion, setonScreenQuestion] = useState({});
   const [testMode, setTestMode] = useState(null);
-  function disableBackButton() {
-    window.history.forward();
-  }
+  // function disableBackButton() {
+  //   window.history.forward();
+  // }
 
   useEffect(async () => {
-    disableBackButton();
-    setTimeout("disableBackButton()", 0);
+    // disableBackButton();
+    // setTimeout("disableBackButton()", 0);
     if (totalSelecteQuestion >= countQuestion) {
       localStorage.setItem(CURRENT_QUESTION, countQuestion);
       const { data } = await axios.post(
@@ -386,6 +387,7 @@ export default function LearningMode() {
         setLastQues(true);
       }
       setcountQuestion(countQuestion + 1);
+      setDumyQue(+dummyQuestions + 1);
     }
   };
 
@@ -418,6 +420,19 @@ export default function LearningMode() {
     }, 1000);
     return () => clearInterval(count);
   }, [questionCount]);
+
+  const dummyQuestions = [
+    "<p>A certain characteristic in a large population has a distribution that is symmetric about the mean m. 68 percent of the distribution lies within one standard deviation d of the mean. The average score of students in a certain class is 72 pts. 84% of students in the class score less than 80 pts. What is the standard deviation of the students' scores?&nbsp;</p>",
+    "<p>The average age of a class of 10 students is 15. A year later, one more student joins in. The average age of the class becomes 16 years. What is the age of the newest member of the class?&nbsp;</p>",
+    "<p>Three boxes have an average weight of 7kg and a median weight of 9kg. What is the maximum weight of the smallest box?&nbsp;</p>",
+    "<p>There are 15 children going to a movie. Tickets cost 5 dollars each, popcorn costs $3 per serving, and candy costs $2.50 per serving. If each child gets one snack, popcorn or candy, and $21 are spent for popcorn, what is the average (arithmetic mean) cost of the trip per child to the nearest cent? </p>",
+    "<p>If the average of five positive integers is 16, and the largest of the integers is 40, then the median of the five integers could be which of the following? <br>I. 10 <br>II. 15 <br>III. 20 <br></p>",
+    "<p>A set X: {a1 , a2 , a3 , a4, a5} with non-zero elements have mean M. What is the mean of the set Y: {a1-1, a2-2, a3-3, a4+5, a5+1} ? </p>",
+    "<p>The mode of a set of 4 positive integers is 7. What is the least possible value of the sum of these 4 integers? </p>",
+    "<p>A set has exactly five consecutive positive integers starting with 1. What is the percentage decrease in the average when the greatest number is removed from the set? </p>",
+    "<p>The median of 5 numbers is 50, and their range is 40. If the median of the 3 smallest numbers is 40, which of the following could be the range of the 3 largest numbers? <br>I. 0 <br>II. 20 <br>III. 40 <br> </p>",
+    "<p>Alice sells apples. She sold at least 10 lb every day last week. If the total weight of apples sold last week was 140, what is the largest possible range of the weights of apples sold on each day last week?</p>",
+  ];
 
   const calCulateTime = () => {
     console.log(endTestTime, "<<<endt time");
@@ -467,7 +482,8 @@ export default function LearningMode() {
             {true ? (
               <div
                 dangerouslySetInnerHTML={{
-                  __html: onScreenQuestion?.questionTitle,
+                  // __html: onScreenQuestion?.questionTitle,
+                  __html: dummyQuestions[dumyQue],
                 }}
               />
             ) : null}
@@ -530,6 +546,7 @@ export default function LearningMode() {
                 //  onClick={nextHandler}
                 onClick={() => {
                   handleNextQuestion();
+                  setDumyQue(+dumyQue + 1);
                   // setcountQuestion(countQuestion + 1);
                 }}
               >
