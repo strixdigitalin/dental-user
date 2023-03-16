@@ -1,7 +1,7 @@
 import React from "react";
 import { makeStyles } from "@mui/styles";
 import { Container, Typography, Box, Button } from "@mui/material";
-import axios from "axios"
+import axios from "axios";
 import { useCallback } from "react";
 import useRazorpay from "react-razorpay";
 
@@ -52,16 +52,18 @@ const Pricing = () => {
   const [plans, setPlans] = React.useState();
   const getPlans = async () => {
     try {
-      const result = await axios.get("https://dworld-back.herokuapp.com/api/v1/subscription/all")
-      console.log(result)
-      setPlans(result)
+      const result = await axios.get(
+        "https://dental-back.onrender.com/api/v1/subscription/all"
+      );
+      console.log(result);
+      setPlans(result);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
   React.useEffect(() => {
-    getPlans()
-  }, [])
+    getPlans();
+  }, []);
   return (
     <>
       <div>
@@ -98,27 +100,28 @@ const Pricing = () => {
           flexWrap: "wrap",
         }}
       >
-        {plans && (<>
-          {plans?.data.data.map((item, i) => (
-            <Box className={classes.card} key={i}>
-              <Typography
-                style={{
-                  fontSize: "20px",
-                  background: "#FFF1F3",
-                  textAlign: "center",
-                  padding: "10px",
-                }}
-              >
-                {item.name}
-              </Typography>
-              <Container>
-                <h1 style={{ textAlign: "center" }}>
-                  {item.extensionDays}
-                  {/* <span style={{ fontSize: "16px", color: "#7B7B7B" }}>
+        {plans && (
+          <>
+            {plans?.data.data.map((item, i) => (
+              <Box className={classes.card} key={i}>
+                <Typography
+                  style={{
+                    fontSize: "20px",
+                    background: "#FFF1F3",
+                    textAlign: "center",
+                    padding: "10px",
+                  }}
+                >
+                  {item.name}
+                </Typography>
+                <Container>
+                  <h1 style={{ textAlign: "center" }}>
+                    {item.extensionDays}
+                    {/* <span style={{ fontSize: "16px", color: "#7B7B7B" }}>
                     / {item.time}
                   </span> */}
-                </h1>
-                {/* <p
+                  </h1>
+                  {/* <p
                   style={{
                     fontSize: "16px",
                     color: "#7B7B7B",
@@ -128,42 +131,42 @@ const Pricing = () => {
                   {item.extensionDays}
                 </p> 
                 <br />*/}
-                {item.description.map((item) => (
-                  <>
-                    <li className={classes.listItem}>{item.title}</li>
-                  </>
-                ))}
-                <br />
-                <Typography
-                  style={{
-                    fontSize: "20px",
-                    background: "#FFF1F3",
-                    textAlign: "center",
-                    padding: "10px",
-                  }}
-                >
-                  <b>{item.amount}</b>
-                </Typography>
-                <br />
-                {/* <PayButton /> */}
-              </Container>
-              {/* <br />
+                  {item.description.map((item) => (
+                    <>
+                      <li className={classes.listItem}>{item.title}</li>
+                    </>
+                  ))}
+                  <br />
+                  <Typography
+                    style={{
+                      fontSize: "20px",
+                      background: "#FFF1F3",
+                      textAlign: "center",
+                      padding: "10px",
+                    }}
+                  >
+                    <b>{item.amount}</b>
+                  </Typography>
+                  <br />
+                  {/* <PayButton /> */}
+                </Container>
+                {/* <br />
             <br /> */}
-              {/* <div style={{ textAlign: "center" }}>
+                {/* <div style={{ textAlign: "center" }}>
               <a href="" className={classes.button}>
                 Try Now
               </a>
             </div> */}
-            </Box>
-          ))}
-        </>)}
+              </Box>
+            ))}
+          </>
+        )}
       </div>
     </>
   );
 };
 
 export default Pricing;
-
 
 const PayButton = () => {
   const Razorpay = useRazorpay();
@@ -200,10 +203,16 @@ const PayButton = () => {
   return (
     <>
       <div className="App">
-        <Button size="large"  sx={{ width: "100%" }} variant="outlined" onClick={handlePayment} color="primary">
+        <Button
+          size="large"
+          sx={{ width: "100%" }}
+          variant="outlined"
+          onClick={handlePayment}
+          color="primary"
+        >
           Get Subscription
         </Button>
       </div>
     </>
-  )
-}
+  );
+};

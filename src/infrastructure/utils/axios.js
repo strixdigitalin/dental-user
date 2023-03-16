@@ -12,7 +12,7 @@ export const headers = () => {
 
 const api = axios.create({
   // baseURL: "https://dental-world-api.herokuapp.com/api/v1",
-  // baseURL: "https://dworld-back.herokuapp.com/api/v1",
+  // baseURL: "https://dental-back.onrender.com/api/v1",
   baseURL: "https://dental-back.onrender.com/api/v1",
   // baseURL: "http://localhost:8000/api/v1",
 });
